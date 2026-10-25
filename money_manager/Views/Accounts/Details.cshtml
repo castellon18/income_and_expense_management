@@ -1,0 +1,11 @@
+﻿@model DetailedTransactionReportsViewModel;
+@{
+    ViewData["Title"] = "Detalles";
+}
+<div class="bg-dark-subtle border border-1 rounded shadow m-3 p-3">
+    <h2 class="card-title text-center text-primary-emphasis mb-3">
+        Movimientos de la cuenta - <strong>@ViewBag.AccountName</strong>
+    </h2>
+
+    <partial name="_DetailedTransactionReport" model="Model" />
+</div>

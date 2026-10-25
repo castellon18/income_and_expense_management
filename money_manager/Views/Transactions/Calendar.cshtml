@@ -1,0 +1,111 @@
+﻿@{
+    ViewData[index:"Title"] = "Calendario";
+}
+<div class="border border-1 rounded shadow m-3 p-3">
+    <partial name="_SubMenuTabs" model="SubMenuTransactionViewModel.Calendar" />
+
+    <div id="calendar" class="mt-4"></div>
+
+    <!-- Modal -->
+    <div class="modal fade" id="transactionModal" tabindex="-1" aria-labelledby="transactionModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="transactionModalLabel">Transacciones del día</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th id="modalTableDate" colspan="2"></th>
+                                    <th id="modalTableIncome" class="text-primary"></th>
+                                    <th id="modalTableBills" class="text-danger"></th>
+                                </tr>
+                            </thead>
+                            <tbody id="modalTableBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="~/lib/full-calendar/index.global.min.js" asp-append-version="true"></script>
+
+    <script>
+        const urlCalendar = '@Url.Action("GetTransactionsByCalendar", "Transactions")'
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const calendarDiv = document.getElementById('calendar');
+            const calendar = new FullCalendar.Calendar(calendarDiv, {
+                dayMaxEventRows: 3,
+                initialView: 'dayGridMonth',
+                events: urlCalendar,
+                dateClick: async function (info) {
+                    await searchTransactionsByDate(info.dateStr);
+                }
+            });
+            calendar.render();
+        });
+
+        const searchTransactionsByDate = async (date) => {
+            const url = '@Url.Action("GetTransactionsByDate", "Transactions")';
+            const response = await fetch(`${url}?date=${date}`, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+            const json = await response.json();
+
+            let income = 0;
+            let bills = 0;
+            const operationTypeId = 1;
+
+            const formatter = new Intl.NumberFormat('es-NI', {
+                style: 'currency',
+                currency: 'NIO'
+            });
+
+            const rows = json.map(transaction => {
+                if (transaction.operationTypeId === operationTypeId) {
+                    income += transaction.amount;
+                } else {
+                    bills += transaction.amount;
+                }
+
+                const htmlView = `
+                            <tr>
+                                <td>${transaction.categoryName}</td>
+                                <td>${transaction.accountName}</td>
+                                <td align="right" colspan="2" class="${transaction.operationTypeId === operationTypeId ? 'text-primary' : 'text-danger'}">
+                                    ${formatter.format(transaction.amount)}
+                                </td>
+                            </tr>
+                        `;
+
+                return htmlView;
+            });
+
+            const modalTableBody = document.getElementById('modalTableBody');
+            const modalTableDate = document.getElementById('modalTableDate');
+            const modalTableIncome = document.getElementById('modalTableIncome');
+            const modalTableBills = document.getElementById('modalTableBills');
+
+            modalTableBody.innerHTML = rows;
+            modalTableDate.innerHTML = date;
+            modalTableIncome.innerHTML = formatter.format(income);
+            modalTableBills.innerHTML = formatter.format(bills);
+
+            const transactionModal = new bootstrap.Modal(document.getElementById('transactionModal'));
+            transactionModal.show();
+        }
+    </script>
+}

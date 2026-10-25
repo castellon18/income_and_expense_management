@@ -1,0 +1,29 @@
+﻿@model SubMenuTransactionViewModel;
+
+<ul class="nav nav-tabs">
+    <li class="nav-link @(Model == SubMenuTransactionViewModel.Daily ? "active" : "")">
+        <a asp-controller="Transactions" asp-action="Index" class="nav-link">
+            Diario
+        </a>
+    </li>
+    <li class="nav-link @(Model == SubMenuTransactionViewModel.Weekly ? "active" : "")">
+        <a asp-controller="Transactions" asp-action="Weekly" class="nav-link">
+            Semanal
+        </a>
+    </li>
+    <li class="nav-link @(Model == SubMenuTransactionViewModel.Monthly ? "active" : "")">
+        <a asp-controller="Transactions" asp-action="Monthly" class="nav-link">
+            Mensual
+        </a>
+    </li>
+    <li class="nav-link @(Model == SubMenuTransactionViewModel.ExcelReport ? "active" : "")">
+        <a asp-controller="Transactions" asp-action="ExcelReport" class="nav-link">
+            Excel
+        </a>
+    </li>
+    <li class="nav-link @(Model == SubMenuTransactionViewModel.Calendar ? "active" : "")">
+        <a asp-controller="Transactions" asp-action="Calendar" class="nav-link">
+            Calendario
+        </a>
+    </li>
+</ul>

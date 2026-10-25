@@ -1,0 +1,76 @@
+﻿@{
+    ViewData["Title"] = "Reportes";
+
+    DateTime now = DateTime.Now;
+    DateTime aMonthAgo = now.AddMonths(-1);
+    int currentMonth = now.Month;
+    int currentYear = now.Year;
+    int previousMonth = aMonthAgo.Month;
+    int previousMonthYear = aMonthAgo.Year;
+    int previousYear = now.Year - 1;
+
+}
+<div class="border border-1 rounded shadow m-3 p-3">
+    <partial name="_SubMenuTabs" model="SubMenuTransactionViewModel.ExcelReport" />
+
+    <h2 class="text-center text-primary-emphasis mt-4 mb-3 fw-bold">
+        Exportar Transacciones a Excel
+    </h2>
+
+    <ol class="list-group">
+        <li class="list-group-item d-flex justify-content-between align-items-start">
+            <div class="ms-2 me-auto">
+                <div class="fw-bold">
+                    Reporte de Transacciones mes actual - @now.ToString("MMMM yyyy")
+                </div>
+                <a asp-action="ExportExcelByMonth" asp-asp-controller="Transactions" asp-route-month="@currentMonth" asp-route-year="@currentYear" class="btn btn-outline-success">
+                    Exportar mes actual
+                </a>
+            </div>
+        </li>
+
+        <li class="list-group-item d-flex justify-content-between align-items-start">
+            <div class="ms-2 me-auto">
+                <div class="fw-bold">
+                    Reporte de Transacciones mes anterior - @aMonthAgo.ToString("MMMM yyyy")
+                </div>
+                <a asp-action="ExportExcelByMonth" asp-asp-controller="Transactions" asp-route-month="@previousMonth" asp-route-year="@previousMonthYear" class="btn btn-outline-success">
+                    Exportar mes anterior
+                </a>
+            </div>
+        </li>
+
+        <li class="list-group-item d-flex justify-content-between align-items-start">
+            <div class="ms-2 me-auto">
+                <div class="fw-bold">
+                    Reporte de Transacciones año actual - @currentYear
+                </div>
+                <a asp-action="ExportExcelByYear" asp-asp-controller="Transactions" asp-route-year="@currentYear" class="btn btn-outline-success">
+                    Exportar año actual
+                </a>
+            </div>
+        </li>
+
+        <li class="list-group-item d-flex justify-content-between align-items-start">
+            <div class="ms-2 me-auto">
+                <div class="fw-bold">
+                    Reporte de Transacciones año anterior - @previousYear
+                </div>
+                <a asp-action="ExportExcelByYear" asp-asp-controller="Transactions" asp-route-year="@previousYear" class="btn btn-outline-success">
+                    Exportar año anterior
+                </a>
+            </div>
+        </li>
+
+        <li class="list-group-item d-flex justify-content-between align-items-start">
+            <div class="ms-2 me-auto">
+                <div class="fw-bold">
+                    Reporte de Transacciones
+                </div>
+                <a asp-action="ExportExcelAll" asp-asp-controller="Transactions" class="btn btn-outline-success">
+                    Exportar todo
+                </a>
+            </div>
+        </li>
+    </ol>
+</div>

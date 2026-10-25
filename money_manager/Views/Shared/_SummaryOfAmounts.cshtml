@@ -1,0 +1,33 @@
+﻿@model SummaryOfAmountsViewModel;
+
+<div class="total-container mt-4">
+    <div>
+        <div>
+            <strong>Depósitos</strong>
+        </div>
+
+        <div class="activo">
+            @Model.Income.ToString("C")
+        </div>
+    </div>
+
+    <div>
+        <div>
+            <strong>Gastos</strong>
+        </div>
+
+        <div class="pasivo">
+            @Model.Bills.ToString("C")
+        </div>
+    </div>
+
+    <div>
+        <div>
+            <strong>Saldo</strong>
+        </div>
+
+        <div>
+            @Model.Total.ToString("C")
+        </div>
+    </div>
+</div>

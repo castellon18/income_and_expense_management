@@ -1,0 +1,177 @@
+﻿@model IEnumerable<AccountTypeEntity>
+
+@{
+    ViewData[index:"Title"] = "Tipos de Cuenta";
+}
+<div class="border border-1 rounded shadow p-2 m-3 w-100">
+
+    @Html.AntiForgeryToken()
+
+    <h2 class="card-title fw-bold text-center text-primary-emphasis">Listado Tipos de Cuentas</h2>
+
+    <a class="btn btn-outline-primary mt-3" asp-controller="AccountTypes" asp-action="Create">Crear Account Type</a>
+
+    @if (Model == null || !Model.Any())
+    {
+        <div class="alert alert-info mt-3" role="alert">
+            No hay tipos de cuentas disponibles. Haz clic en "Crear Account Type" para agregar uno nuevo.
+        </div>
+    }
+    else
+    {
+        <div class="table-responsive mt-3">
+            <table id="sortableTable" class="table table-primary table-striped table-hover">
+                <thead class="table-secondary">
+                    <tr>
+                        <th>#</th>
+                        <th>Nombre</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody class="table-group-divider">
+                    @foreach (AccountTypeEntity accountType in Model)
+                    {
+                        <tr draggable="true" data-id="@accountType.AccountTypeId">
+                            <td>@accountType.AccountTypeId</td>
+                            <td>@accountType.AccountTypeName</td>
+                            <td>
+                                <a class="btn btn-sm btn-outline-secondary" asp-controller="AccountTypes" asp-action="Edit" asp-route-id="@accountType.AccountTypeId">Editar</a>
+                                <button class="btn btn-sm btn-outline-danger" onclick="deleteAccountType(@accountType.AccountTypeId)">Eliminar</button>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>
+
+@section Scripts {
+    <script>
+        const urlReorder = '@Url.Action("Reorder", "AccountTypes")';
+
+        document.addEventListener('DOMContentLoaded', function () {
+            const table = document.getElementById('sortableTable');
+            let draggedRow = null;
+
+            table.addEventListener('dragstart', function (e) {
+                draggedRow = e.target;
+                e.dataTransfer.effectAllowed = 'move';
+            });
+
+            table.addEventListener('dragover', function (e) {
+                e.preventDefault();
+                const targetRow = e.target.closest('tr');
+                if (targetRow && targetRow !== draggedRow) {
+                    const bounding = targetRow.getBoundingClientRect();
+                    const offset = bounding.y + bounding.height / 2;
+                    if (e.clientY - offset > 0) {
+                        targetRow.style.borderBottom = '2px solid #007bff';
+                        targetRow.style.borderTop = '';
+                    } else {
+                        targetRow.style.borderTop = '2px solid #007bff';
+                        targetRow.style.borderBottom = '';
+                    }
+                }
+            });
+
+            table.addEventListener('dragleave', function (e) {
+                const targetRow = e.target.closest('tr');
+                if (targetRow) {
+                    targetRow.style.borderTop = '';
+                    targetRow.style.borderBottom = '';
+                }
+            });
+
+            table.addEventListener('drop', async function (e) {
+                e.preventDefault();
+                const targetRow = e.target.closest('tr');
+                if (targetRow && targetRow !== draggedRow) {
+                    const bounding = targetRow.getBoundingClientRect();
+                    const offset = bounding.y + bounding.height / 2;
+                    if (e.clientY - offset > 0) {
+                        targetRow.style.borderBottom = '';
+                        targetRow.parentNode.insertBefore(draggedRow, targetRow.nextSibling);
+                    } else {
+                        targetRow.style.borderTop = '';
+                        targetRow.parentNode.insertBefore(draggedRow, targetRow);
+                    }
+                }
+
+                try {
+                    await updateOrder();
+                    console.log("Orden actualizado correctamente");
+                } catch (error) {
+                    console.error("Error al actualizar el orden:", error);
+                }
+            });
+
+            const updateOrder = async function () {
+                const rows = table.querySelectorAll('tbody tr');
+                const order = Array.from(rows).map(row => row.getAttribute('data-id'));
+                await fetch(urlReorder, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]').value
+                    },
+                    body: JSON.stringify(order)
+                });
+            };
+        });
+
+        const deleteAccountType = (accountTypeId = 0) => {
+            Swal.fire({
+                title: '¿Estás seguro de eliminar este tipo de cuenta?',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Sí, eliminar',
+                cancelButtonText: 'Cancelar'
+            }).then(async (result) => {
+                if (result.isConfirmed) {
+                    await deleteAccountTypeRequest(accountTypeId);
+                }
+            });
+        }
+
+        const urlDelete = '@Url.Action("Delete", "AccountTypes")';
+
+        const deleteAccountTypeRequest = async (accountTypeId = 0) => {
+            try {
+                const response = await fetch(`${urlDelete}/${accountTypeId}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]').value
+                    }
+                });
+                if (response.ok) {
+                    Swal.fire({
+                        title: 'Tipo cuenta eliminada',
+                        icon: 'success',
+                        confirmButtonText: 'OK'
+                    }).then(() => {
+                        location.reload();
+                    });
+                } else {
+                    Swal.fire({
+                        title: 'Error al eliminar el tipo de cuenta',
+                        text: 'Inténtalo de nuevo más tarde.',
+                        icon: 'error',
+                        confirmButtonText: 'OK'
+                    });
+                }
+            } catch (error) {
+                console.error("Error al eliminar el tipo de cuenta:", error);
+                Swal.fire({
+                    icon: "error",
+                    title: "Error de Conexión",
+                    text: "Ocurrió un error de red o del servidor. Por favor, inténtelo de nuevo.",
+                });
+            }
+        }
+
+    </script>
+}

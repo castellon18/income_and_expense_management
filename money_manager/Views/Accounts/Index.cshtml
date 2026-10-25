@@ -1,0 +1,181 @@
+﻿@model IEnumerable<AccountIndexViewModel>;
+@{
+    ViewData[index:"Title"] = "Accounts";
+
+    string formatCurrency(decimal amount)
+    {
+        return string.Format(System.Globalization.CultureInfo.CurrentCulture, "{0:C}", amount);
+    }
+
+    string getBadgeClass(decimal balance)
+    {
+        if (balance >= 0)
+        {
+            return "bg-success text-white";
+        }
+        else if (balance < 0)
+        {
+            return "bg-danger text-white";
+        }
+        else
+        {
+            return "bg-secondary text-white";
+        }
+    }
+
+    string getBalanceClass(decimal balance)
+    {
+        return balance <= 0 ? "text-danger" : "text-success";
+    }
+}
+<div class="border border-1 rounded shadow p-2 m-3 w-100">
+    @Html.AntiForgeryToken()
+
+    <h2 class="card-title fw-bold text-center text-primary-emphasis">Listado de Cuentas</h2>
+
+    <a class="btn btn-outline-primary mt-3 mb-3 mx-3" asp-controller="Accounts" asp-action="Create">Crear Account</a>
+
+    <div class="total-container mb-3">
+        <div>
+            <div>
+                <strong>Activos</strong>
+            </div>
+            <div class="activo">
+                @formatCurrency(Model.Where(a => a.TotalBalance > 0).Sum(a => a.TotalBalance))
+            </div>
+        </div>
+
+        <div>
+            <div>
+                <strong>Pasivos</strong>
+            </div>
+            <div class="pasivo">
+                @formatCurrency(Model.Where(a => a.TotalBalance < 0).Sum(a => a.TotalBalance))
+            </div>
+        </div>
+
+        <div>
+            <div>
+                <strong>Total</strong>
+            </div>
+            <div>
+                @formatCurrency(Model.Sum(a => a.TotalBalance))
+            </div>
+        </div>
+    </div>
+
+    <div class="accordion mx-5 mb-3" id="accordionContainer">
+        @foreach (AccountIndexViewModel accountType in Model)
+        {
+            <div class="accordion-item">
+                <h2 class="accordion-header" id="headerOne">
+                    @{
+                        var id = accountType.AccountType.Replace(" ", "");
+                        var dataBsTarget = $"#{id}";
+                        var accountTypeClass = getBadgeClass(accountType.TotalBalance);
+                    }
+                    <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="@dataBsTarget" aria-expanded="false" aria-controls="@id">
+                        <div class="w-100 d-flex justify-content-between me-3">
+                            <span class="@accountTypeClass rounded p-2 fs-5">
+                                <strong>@accountType.AccountType</strong>
+                            </span>
+
+                            <span class="@accountTypeClass rounded p-2 fs-5">
+                                @formatCurrency(accountType.TotalBalance)
+                            </span>
+                        </div>
+                    </button>
+                </h2>
+                <div id="@id" class="accordion-collapse collapse" data-bs-parent="#accordionContainer">
+                    <div class="accordion-body">
+                        <ul class="list-group">
+                            @foreach (AccountEntity account in accountType.Accounts)
+                            {
+                                var accountClass = getBalanceClass(account.AccountBalance);
+
+                                <li class="list-group-item d-flex justify-content-between">
+                                    <span class="@accountClass p-2 rounded">
+                                        <strong class="me-2">
+                                            <a asp-action="Details" asp-controller="Accounts" asp-route-id="@account.AccountId">
+                                                @account.AccountName
+                                            </a>
+                                        </strong>
+                                        <a class="btn btn-outline-primary" asp-controller="Accounts" asp-action="Edit" asp-route-id="@account.AccountId">
+                                            <i class="bi bi-pencil-square"></i>
+                                        </a>
+                                        <button class="btn btn-outline-danger" onclick="deleteAccontEvent(@account.AccountId)">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    </span>
+
+                                    <span class="@accountClass p-2 rounded">
+                                        @formatCurrency(account.AccountBalance)
+                                    </span>
+                                </li>
+                            }
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        urlBase = '@Url.Action(action: "Delete", controller: "Accounts")';
+
+        const deleteAccontEvent = (accountId = 0) => {
+            console.log('deleteAccontEvent called with accountId:', accountId);
+            Swal.fire({
+                title: '¿Estás seguro de eliminar esta cuenta?',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Sí, eliminar',
+                cancelButtonText: 'Cancelar'
+            }).then(async (result) => {
+                if (result.isConfirmed) {
+                    await deleteAccount(urlBase, accountId);
+                }
+            });
+        }
+
+        const deleteAccount = async (urlBase = '', accountId = '') => {
+            try {
+                const response = await fetch(`${urlBase}/${accountId}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]').value
+                    }
+                });
+
+                if (response.ok) {
+                    Swal.fire({
+                        title: 'Cuenta eliminada',
+                        icon: 'success',
+                        confirmButtonText: 'OK'
+                    }).then(() => {
+                        location.reload();
+                    });
+                } else {
+                    Swal.fire({
+                        title: 'Error al eliminar la cuenta',
+                        text: 'Inténtalo de nuevo más tarde.',
+                        icon: 'error',
+                        confirmButtonText: 'OK'
+                    });
+                }
+            } catch (error) {
+                console.error('Error al eliminar la cuenta:', error);
+                Swal.fire({
+                    icon: "error",
+                    title: "Error de Conexión",
+                    text: "Ocurrió un error de red o del servidor. Por favor, inténtelo de nuevo.",
+                });
+            }
+        }
+    </script>
+}

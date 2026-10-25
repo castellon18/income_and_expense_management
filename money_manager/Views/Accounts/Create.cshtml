@@ -1,0 +1,57 @@
+﻿@model CreateAccountViewModel;
+@{
+    ViewData[index: "Title"] = "Crear Cuenta";
+}
+<div class=" border border-1 rounded shadow p-3 m-4">
+    <h2 class="card-title text-primary text-center fw-bold">Crear Cuenta</h2>
+    <h5 class="card-subtitle mb-3 text-muted text-center">
+        La cuenta se refiere a los distintos balances que tienes.
+        <br />
+        Ejemplo: cuentas de ahorro préstamos, tarjetas de créditos, etc.
+    </h5>
+    <div asp-validation-summary="ModelOnly" class="text-center m-2 alert alert-danger"></div>
+    <form asp-controller="Accounts" asp-action="Create" method="post">
+        <div class="mb-3">
+            <label asp-for="AccountName" class="form-label"></label>
+            <input type="text"
+                   class="form-control"
+                   asp-for="AccountName"
+                   placeholder="Ingresa el nombre de la cuenta"
+                   autocomplete="off">
+            <span asp-validation-for="AccountName" class="text-danger m-1"></span>
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="AccountTypeId" class="form-label"></label>
+            <select asp-for="AccountTypeId" asp-items="Model.AccountTypes" class="form-select"></select>
+            <span asp-validation-for="AccountTypeId" class="text-danger m-1"></span>
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="AccountBalance" class="form-label"></label>
+            <input class="form-control"
+                   asp-for="AccountBalance"
+                   placeholder="Ingresa el saldo de la cuenta"
+                   autocomplete="off">
+            <span asp-validation-for="AccountBalance" class="text-danger m-1"></span>
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="AccountDescription" class="form-label"></label>
+            <textarea class="form-control"
+                      asp-for="AccountDescription"
+                      placeholder="Ingresa la descripción de la cuenta"
+                      autocomplete="off"
+                      rows="4">
+            </textarea>
+            <span asp-validation-for="AccountDescription" class="text-danger m-1"></span>
+        </div>
+
+        <button type="submit" class="btn btn-primary">Create</button>
+        <a class="btn btn-secondary" asp-controller="Accounts" asp-action="Index">Cancel</a>
+    </form>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

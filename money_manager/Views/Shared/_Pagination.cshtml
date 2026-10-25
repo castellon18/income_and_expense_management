@@ -1,0 +1,30 @@
+﻿@model ResponsePaginationViewModel;
+@{
+    string linkTemplate = string.Concat(Model.UrlBase, "?page={0}&recordsPerPage={1}");
+    bool activatePreviousButton = Model.Page > 1;
+    bool activateNextButton = Model.Page < Model.TotalPages;
+}
+<nav class="mt-2">
+    <ul class="pagination">
+        <li class="page-item @(activatePreviousButton ? "" : "disabled")">
+            <a class="page-link" href="@string.Format(linkTemplate, Model.Page - 1, Model.RecordsPerPage)">
+                Previous
+            </a>
+        </li>
+
+        @for (int pagina = 1; pagina <= Model.TotalPages; pagina++)
+        {
+            <li class="page-item @(pagina == Model.Page ? "active" : "")">
+                <a class="page-link" href="@string.Format(linkTemplate, pagina, Model.RecordsPerPage)">
+                    @pagina
+                </a>
+            </li>
+        }
+
+        <li class="page-item @(activateNextButton ? "" : "disabled")">
+            <a class="page-link" href="@string.Format(linkTemplate, Model.Page + 1, Model.RecordsPerPage)">
+                Next
+            </a>
+        </li>
+    </ul>
+</nav>

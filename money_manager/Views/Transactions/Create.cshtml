@@ -1,0 +1,68 @@
+﻿@model CreateTransactionViewModel;
+@{
+    ViewData[index:"Title"] = "Crear Transaccion";
+}
+<div class=" border border-1 rounded shadow p-3 m-4">
+    @Html.AntiForgeryToken()
+
+    <h2 class="card-title text-primary text-center fw-bold">Crear Transacción</h2>
+
+    <h5 class="card-subtitle mb-3 text-muted text-center">
+        Una Transacción te permite indicar tus ingresos y gastos, para tener un mejor control de tus finanzas. Es importante crear transacciones para llevar un registro de tus movimientos financieros.
+    </h5>
+
+    <div asp-validation-summary="ModelOnly" class="text-center m-2 alert alert-danger"></div>
+
+    <form asp-controller="Transactions" asp-action="Create" method="post">
+        <div class="mb-3">
+            <label asp-for="TransactionDate" class="form-label"></label>
+            <input asp-for="TransactionDate" class="form-control" />
+            <span asp-validation-for="TransactionDate" class="text-danger m-1"></span>
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="AccountId" class="form-label"></label>
+            <select asp-for="AccountId" asp-items="Model.Accounts" class="form-select"></select>
+            <span asp-validation-for="AccountId" class="text-danger m-1"></span>
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="OperationTypeId" class="form-label"></label>
+            <select asp-for="OperationTypeId" asp-items="Html.GetEnumSelectList<OperationTypeEntity>()" class="form-select"></select>
+            <span asp-validation-for="OperationTypeId" class="text-danger m-1"></span>
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="CategoryId" class="form-label"></label>
+            <select asp-for="CategoryId" asp-items="Model.Categories" class="form-select"></select>
+            <span asp-validation-for="CategoryId" class="text-danger m-1"></span>
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="Amount" class="form-label"></label>
+            <input asp-for="Amount" class="form-control" />
+            <span asp-validation-for="Amount" class="text-danger m-1"></span>
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="TransactionNote" class="form-label"></label>
+            <textarea asp-for="TransactionNote" class="form-control" rows="4"></textarea>
+            <span asp-validation-for="TransactionNote" class="text-danger m-1"></span>
+        </div>
+
+        <button type="submit" class="btn btn-primary">Create</button>
+        <a class="btn btn-secondary" asp-controller="Transactions" asp-action="Index">Cancel</a>
+    </form>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+
+    <script>
+        const urlGetCategories = '@Url.Action("GetCategories", "Transactions")';
+
+        document.addEventListener("DOMContentLoaded", () => {
+            SelectListItemsCategories(urlGetCategories);
+        });
+    </script>
+}

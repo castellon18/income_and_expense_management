@@ -1,0 +1,38 @@
+﻿@model AccountTypeEntity;
+@{
+    ViewData[index:"Title"] = "Editar Tipo de Cuenta";
+}
+<div class=" border border-1 rounded shadow p-3 m-4">
+    <h2 class="card-title text-primary text-center fw-bold">Editar Tipo de Cuenta</h2>
+
+    <h5 class="card-subtitle mb-3 text-muted text-center">
+        El tipo de cuenta se refiere a cómo podemos agrupar cuentas.
+        <br />
+        Ejemplo: préstamos, tarjetas, créditos, etc.
+    </h5>
+
+    <div asp-validation-summary="ModelOnly" class="text-center m-2 alert alert-danger"></div>
+
+    <form asp-controller="AccountTypes" asp-action="Edit" method="post">
+        <div>
+            <input type="hidden" asp-for="AccountTypeId" class="form-control" />
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="AccountTypeName" class="form-label"></label>
+            <input type="text"
+                   class="form-control"
+                   asp-for="AccountTypeName"
+                   placeholder="Ingresa el nombre del tipo de cuenta"
+                   autocomplete="off">
+            <span asp-validation-for="AccountTypeName" class="text-danger m-1"></span>
+        </div>
+
+        <button type="submit" class="btn btn-primary">Edit</button>
+        <a class="btn btn-secondary" asp-controller="AccountTypes" asp-action="Index">Cancel</a>
+    </form>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

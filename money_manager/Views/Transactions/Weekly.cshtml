@@ -1,0 +1,56 @@
+﻿@model WeeklyReportViewModel;
+@{
+    ViewData[index:"Title"] = "Weekly Report";
+
+    string formatDate(DateTime date) => date.ToString("MMM dd");
+
+    SummaryOfAmountsViewModel viewModel = new SummaryOfAmountsViewModel()
+    {
+        Income = Model.Income,
+        Bills = Model.Bills,
+        Total = Model.Total
+    };
+}
+<div class="border border-1 rounded shadow m-3 p-3">
+    <partial name="_SubMenuTabs" model="SubMenuTransactionViewModel.Weekly" />
+
+    <partial name="_MonthsBrowser" model="@Model.ReferenceDate" />
+
+    <partial name="_SummaryOfAmounts" model="@viewModel" />
+
+    <div class="table-responsive">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Semana</th>
+                    <th>Ingresos</th>
+                    <th>Gastos</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (ExpectedResultsPerWeekEntity item in Model.TransactionsByWeek)
+                {
+                    <tr>
+                        <td>
+                            <a class="text-decoration-none" asp-route-year="@Model.ReferenceDate.Year" asp-route-month="@Model.ReferenceDate.Month">
+                                @formatDate(item.StartDate) - @formatDate(item.EndDate)
+                            </a>
+                        </td>
+                        <td class="text-primary">
+                            @if (item.Income > 0)
+                            {
+                                @item.Income.ToString("C")
+                            }
+                        </td>
+                        <td class="text-danger">
+                            @if (item.Bills > 0)
+                            {
+                                @item.Bills.ToString("C")
+                            }
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

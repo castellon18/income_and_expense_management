@@ -1,0 +1,77 @@
+﻿@model MonthlyReportViewModel;
+@{
+    ViewData["Title"] = "Monthly Report";
+
+    int previewYear = Model.Year - 1;
+    int nextYear = Model.Year + 1;
+
+    SummaryOfAmountsViewModel viewModel = new SummaryOfAmountsViewModel()
+    {
+        Income = Model.Income,
+        Bills = Model.Bills,
+        Total = Model.Total
+    };
+}
+<div class="border border-1 rounded shadow m-3 p-3">
+    <partial name="_SubMenuTabs" model="SubMenuTransactionViewModel.Monthly" />
+
+    <div class="mt-4 d-flex justify-content-between align-items-center">
+
+        <div>
+            <a class="btn btn-outline-primary m-3" asp-action="Create" asp-controller="Transactions">
+                Create Transaction
+            </a>
+        </div>
+
+        <div>
+            <a asp-route-year="@previewYear" class="btn btn-secondary">
+                <i class="bi-chevron-left"></i>
+            </a>
+
+            <strong class="mx-3">Año @Model.Year</strong>
+
+            <a asp-route-year="@nextYear" class="btn btn-secondary">
+                <i class="bi-chevron-right"></i>
+            </a>
+        </div>
+
+    </div>
+
+    <partial name="_SummaryOfAmounts" model="@viewModel" />
+
+    <div class="table-responsive">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Mes</th>
+                    <th>Ingresos</th>
+                    <th>Gastos</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model.TransactionsByMonth)
+                {
+                    <tr>
+                        <td>
+                            <a class="text-decoration-none" asp-action="Index" asp-controller="Transactions" asp-route-year="@Model.Year" asp-route-month="@item.Months">
+                                @item.ReferenceDate.ToString("MMMM")
+                            </a>
+                        </td>
+                        <td class="text-primary">
+                            @if (item.Income > 0)
+                            {
+                                @item.Income.ToString("C")
+                            }
+                        </td>
+                        <td class="text-danger">
+                            @if (item.Bills > 0)
+                            {
+                                @item.Bills.ToString("C")
+                            }
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

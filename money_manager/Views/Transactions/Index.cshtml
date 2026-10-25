@@ -1,0 +1,11 @@
+﻿@model DetailedTransactionReportsViewModel;
+@{
+    ViewData["Title"] = "Daily Report";
+}
+
+<div class="border border-1 rounded shadow m-3 p-3">
+
+    <partial name="_SubMenuTabs" model="SubMenuTransactionViewModel.Daily" />
+
+    <partial name="_DetailedTransactionReport" model="Model" />
+</div>
